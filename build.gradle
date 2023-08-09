@@ -52,7 +52,7 @@ subprojects {
 
   protobuf {
     protoc {
-      artifact = 'com.google.protobuf:protoc:+'
+      artifact = 'com.google.protobuf:protoc:4+'
     }
   }
 }

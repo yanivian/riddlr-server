@@ -57,9 +57,9 @@ public final class TopicDao {
   }
 
   /** Returns a new unsaved riddle. */
-  public TopicModel newRiddle(Transaction txn, String id, String topic) {
+  public TopicModel newRiddle(String id, String topic, RiddlesPayload payload) {
     Entity entity = new Entity(TopicModel.KIND, id);
-    return new TopicModel(entity).setTopic(topic);
+    return new TopicModel(entity).setTopic(topic).setRiddlesPayload(payload);
   }
 
   public static final class TopicModel extends DatastoreModel<TopicModel> {

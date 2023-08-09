@@ -2,12 +2,14 @@ ext {
 
   libs = [
     appengine : [
-      'com.google.appengine:appengine:+',
-      'com.google.appengine.tools:appengine-gcs-client:+',
+      'com.google.appengine:appengine-api-1.0-sdk:+',
     ],
-    endpoints : [
-      'com.google.endpoints:endpoints-framework:+',
-      'com.google.endpoints:endpoints-framework-guice:+',
+    guice: [
+      'javax.inject:javax.inject:+',
+      'com.google.inject:guice:+',
+    ],
+    guice_servlet: [
+      'com.google.inject.extensions:guice-servlet:+',
     ],
     log4j_api : 'org.apache.logging.log4j:log4j-api:2.+',
     log4j_core: 'org.apache.logging.log4j:log4j-core:2.+',
@@ -17,7 +19,7 @@ ext {
     ],
     servlet_api : [
       'javax.servlet:javax.servlet-api:+',
-      'javax.servlet.jsp:javax.servlet.jsp-api:+',
+      'jakarta.servlet:jakarta.servlet-api:+',
     ],
   ]
 

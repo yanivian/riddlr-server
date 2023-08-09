@@ -2,7 +2,8 @@ apply plugin: 'com.google.cloud.tools.appengine'
 
 dependencies {
   implementation project(":common")
-  implementation libs.endpoints
+  implementation libs.appengine
+  implementation libs.guice
 }
 
 appengine {

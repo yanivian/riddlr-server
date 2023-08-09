@@ -2,10 +2,12 @@ apply plugin: 'com.google.cloud.tools.appengine'
 apply plugin: 'war'
 
 dependencies {
+  compileOnly libs.servlet_api
+
   implementation project(":backend")
   implementation project(":service")
-  implementation libs.endpoints
-  implementation libs.appengine
+  implementation libs.guice
+  implementation libs.guice_servlet
 }
 
 appengine {

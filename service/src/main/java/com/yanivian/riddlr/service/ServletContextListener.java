@@ -6,7 +6,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import com.google.inject.servlet.GuiceServletContextListener;
-import javax.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextEvent;
 
 /** Base class for the servlet context listener. */
 public abstract class ServletContextListener extends GuiceServletContextListener {

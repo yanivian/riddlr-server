@@ -4,5 +4,6 @@ dependencies {
   compileOnly libs.servlet_api
 
   implementation project(":common")
-  implementation libs.endpoints
+  implementation libs.guice
+  implementation libs.guice_servlet
 }

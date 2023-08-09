@@ -3,7 +3,7 @@ package com.yanivian.riddlr.common.util;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.TextFormat;
-import java.io.IOException;
+import com.google.protobuf.TextFormat.ParseException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -24,8 +24,12 @@ public final class TextProtoUtils {
     return encodeToString(data).getBytes(CHARSET);
   }
 
-  /** Decodes the given byte array and returns the original proto payload. */
-  public static <T extends Message> T decode(byte[] code, Class<T> protoClass) throws IOException {
+  /**
+   * Decodes the given byte array and returns the original proto payload.
+   * @throws ParseException when incompatible
+   */
+  public static <T extends Message> T decode(byte[] code, Class<T> protoClass)
+      throws ParseException {
     return TextFormat.parse(new String(code, CHARSET), protoClass);
   }
 }

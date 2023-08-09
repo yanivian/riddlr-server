@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package backend.datastore;
+
+option java_package = "com.yanivian.riddlr.backend.datastore.proto";
+option java_multiple_files = true;
+
+message RiddlesPayload {
+  message Riddle {
+    string Question = 1;
+    string CorrectAnswer = 2;
+    repeated string IncorrectAnswers = 3;
+  }
+
+  repeated Riddle Riddles = 1;
+}

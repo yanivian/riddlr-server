@@ -1,0 +1,24 @@
+ext {
+
+  libs = [
+    appengine : [
+      'com.google.appengine:appengine:+',
+      'com.google.appengine.tools:appengine-gcs-client:+',
+    ],
+    endpoints : [
+      'com.google.endpoints:endpoints-framework:+',
+      'com.google.endpoints:endpoints-framework-guice:+',
+    ],
+    log4j_api : 'org.apache.logging.log4j:log4j-api:2.+',
+    log4j_core: 'org.apache.logging.log4j:log4j-core:2.+',
+    protobuf : [
+      'com.google.protobuf:protobuf-java:+',
+      'com.google.protobuf:protobuf-java-util:+',
+    ],
+    servlet_api : [
+      'javax.servlet:javax.servlet-api:+',
+      'javax.servlet.jsp:javax.servlet.jsp-api:+',
+    ],
+  ]
+
+}

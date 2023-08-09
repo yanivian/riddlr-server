@@ -1,0 +1,58 @@
+apply from: 'gradle/deps.gradle'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.google.cloud.tools:appengine-gradle-plugin:+'
+    classpath 'com.google.protobuf:protobuf-gradle-plugin:+'
+  }
+}
+
+allprojects {
+  group 'com.yanivian.riddlr'
+  version 'release-1.0'
+}
+
+subprojects {
+
+  apply plugin: 'com.google.protobuf'
+  apply plugin: 'java'
+
+  sourceCompatibility = 1.8
+  targetCompatibility = 1.8
+
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    implementation libs.protobuf
+  }
+
+  sourceSets {
+    main {
+      java {
+        srcDirs 'build/generated/source/proto/main/java'
+      }
+      proto {
+        srcDir 'proto'
+      }
+    }
+    test {
+      java {
+        srcDirs 'build/generated/source/proto/test/java'
+      }
+      proto {
+        srcDir 'proto'
+      }
+    }
+  }
+
+  protobuf {
+    protoc {
+      artifact = 'com.google.protobuf:protoc:+'
+    }
+  }
+}

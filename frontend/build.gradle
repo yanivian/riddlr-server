@@ -1,0 +1,22 @@
+apply plugin: 'com.google.cloud.tools.appengine'
+apply plugin: 'war'
+
+dependencies {
+  implementation project(":backend")
+  implementation project(":service")
+  implementation libs.endpoints
+  implementation libs.appengine
+}
+
+appengine {
+  run {
+    port = 8080
+  }
+
+  deploy {
+    projectId = 'yanivian'
+    promote = true
+    stopPreviousVersion = true
+    version = '1.0'
+  }
+}

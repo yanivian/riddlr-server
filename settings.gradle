@@ -1,0 +1,5 @@
+rootProject.name = 'riddlr-server'
+include 'backend'
+include 'common'
+include 'frontend'
+include 'service'

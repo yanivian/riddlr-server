@@ -1,0 +1,9 @@
+apply plugin: 'com.google.cloud.tools.appengine'
+
+dependencies {
+  implementation project(":common")
+  implementation libs.endpoints
+}
+
+appengine {
+}

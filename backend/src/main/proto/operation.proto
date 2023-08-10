@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package backend.operation;
+
+option java_package = "com.yanivian.riddlr.backend.operation.proto";
+option java_multiple_files = true;
+
+message GetRiddlesForTopicRequest {
+  // Unique ID associated with the client.
+  string UID = 1;
+  string Topic = 2;
+}
+
+message RiddlesForTopic {
+  string ID = 1;
+
+  // Timestamp when last updated or created.
+  int64 TimestampMillis = 2;
+
+  message Riddle {
+    string Question = 1;
+    string CorrectAnswer = 2;
+    repeated string IncorrectAnswers = 3;
+  }
+  repeated Riddle Riddles = 3;
+}

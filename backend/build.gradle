@@ -2,6 +2,7 @@ apply plugin: 'com.google.cloud.tools.appengine'
 
 dependencies {
   implementation project(":common")
+  implementation project(":generativelanguage")
   implementation libs.appengine
   implementation libs.guice
 }

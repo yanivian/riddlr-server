@@ -1,0 +1,9 @@
+apply plugin: 'java-library'
+
+dependencies {
+  implementation 'io.grpc:grpc-okhttp:+'
+
+  // Local dependency, see https://developers.generativeai.google/tutorials/text_java_quickstart
+  // TODO: Change to a public maven repository.
+  implementation 'com.google.cloud:gapic-google-cloud-ai-generativelanguage-v1beta2-java:+'
+}

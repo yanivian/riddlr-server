@@ -38,11 +38,14 @@ public abstract class Endpoint extends HttpServlet {
 
   @Override
   public void init() throws ServletException {
-    Injector injector = (Injector) getServletContext().getAttribute(GUICE_INJECTOR_ATTRIBUTE_NAME);
-    Preconditions.checkNotNull(injector, "Guice injector not found.");
-    injector.injectMembers(this);
+    getInjector().injectMembers(this);
 
     super.init();
+  }
+
+  protected Injector getInjector() {
+    Injector injector = (Injector) getServletContext().getAttribute(GUICE_INJECTOR_ATTRIBUTE_NAME);
+    return Preconditions.checkNotNull(injector, "Guice injector not found.");
   }
 
   @Override

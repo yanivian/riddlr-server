@@ -5,8 +5,7 @@ import com.yanivian.riddlr.service.ModuleCollector;
 import com.yanivian.riddlr.service.ServletContextListener;
 
 public final class RiddlrFrontend extends ServletContextListener {
-  public RiddlrFrontend() {}
-
+  @Override
   protected void collectModules(ModuleCollector collector) {
     collector.add(new RiddlrBackendModule());
   }

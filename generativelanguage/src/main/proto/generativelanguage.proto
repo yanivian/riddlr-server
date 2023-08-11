@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package generativelanguage;
+
+option java_package = "com.yanivian.riddlr.generativelanguage.proto";
+option java_multiple_files = true;
+
+message Riddle {
+  string Question = 1;
+  string CorrectAnswer = 2;
+  repeated string IncorrectAnswers = 3;
+}

@@ -4,6 +4,7 @@ apply plugin: 'war'
 dependencies {
   compileOnly libs.servlet_api
 
+  implementation project(":common")
   implementation project(":backend")
   implementation project(":service")
   implementation libs.guice
@@ -19,6 +20,6 @@ appengine {
     projectId = 'yanivian'
     promote = true
     stopPreviousVersion = true
-    version = '1.0'
+    version = 'prod'
   }
 }

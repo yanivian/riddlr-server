@@ -4,6 +4,7 @@ dependencies {
   implementation project(":common")
   implementation project(":generativelanguage")
   implementation libs.appengine
+  implementation libs.guava
   implementation libs.guice
 }
 

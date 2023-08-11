@@ -4,12 +4,20 @@ ext {
     appengine : [
       'com.google.appengine:appengine-api-1.0-sdk:+',
     ],
+    generativelanguage: [
+      // Local dependency, see https://developers.generativeai.google/tutorials/text_java_quickstart
+      // TODO: Change to a public maven repository.
+      'com.google.cloud:gapic-google-cloud-ai-generativelanguage-v1beta2-java:+',
+      'io.grpc:grpc-okhttp:+',
+    ],
+    guava: [
+      'com.google.guava:guava:+',
+    ],
     guice: [
-      'javax.inject:javax.inject:+',
       'com.google.inject:guice:+',
     ],
     guice_servlet: [
-      'com.google.inject.extensions:guice-servlet:+',
+      'com.google.inject.extensions:guice-servlet:5+',
     ],
     log4j_api : 'org.apache.logging.log4j:log4j-api:2.+',
     log4j_core: 'org.apache.logging.log4j:log4j-core:2.+',
@@ -18,8 +26,7 @@ ext {
       'com.google.protobuf:protobuf-java-util:+',
     ],
     servlet_api : [
-      'javax.servlet:javax.servlet-api:+',
-      'jakarta.servlet:jakarta.servlet-api:+',
+      'javax.servlet:javax.servlet-api:4+',
     ],
   ]
 

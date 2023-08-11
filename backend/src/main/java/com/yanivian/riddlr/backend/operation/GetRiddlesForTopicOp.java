@@ -2,24 +2,30 @@ package com.yanivian.riddlr.backend.operation;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.common.collect.ImmutableList;
+import com.google.inject.Inject;
+import com.yanivian.riddlr.backend.datastore.DatastoreUtils;
 import com.yanivian.riddlr.backend.datastore.RiddlesForTopicDao;
 import com.yanivian.riddlr.backend.datastore.RiddlesForTopicDao.RiddlesForTopicModel;
+import com.yanivian.riddlr.backend.datastore.proto.RiddlesPayload;
 import com.yanivian.riddlr.backend.operation.proto.GetRiddlesForTopicRequest;
 import com.yanivian.riddlr.backend.operation.proto.RiddlesForTopic;
+import com.yanivian.riddlr.generativelanguage.GenerativeLanguageClient;
+import com.yanivian.riddlr.generativelanguage.proto.Riddle;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.function.Function;
-import javax.inject.Inject;
 
 public final class GetRiddlesForTopicOp
     implements Function<GetRiddlesForTopicRequest, RiddlesForTopic> {
+  private final GenerativeLanguageClient generativeLanguageClient;
   private final RiddlesForTopicDao riddlesForTopicDao;
   private final DatastoreService datastore;
   private final Clock clock;
 
   @Inject
-  GetRiddlesForTopicOp(
+  public GetRiddlesForTopicOp(GenerativeLanguageClient generativeLanguageClient,
       RiddlesForTopicDao riddlesForTopicDao, DatastoreService datastore, Clock clock) {
+    this.generativeLanguageClient = generativeLanguageClient;
     this.riddlesForTopicDao = riddlesForTopicDao;
     this.datastore = datastore;
     this.clock = clock;
@@ -27,21 +33,51 @@ public final class GetRiddlesForTopicOp
 
   @Override
   public RiddlesForTopic apply(GetRiddlesForTopicRequest req) {
-    String topic = normalizeTopic(req.getTopic());
+    String topic = req.getTopic();
     ImmutableList<RiddlesForTopicModel> riddlesForTopicList =
-        riddlesForTopicDao.findRiddlesByTopic(topic);
-    if (!riddlesForTopicList.isEmpty()) {
-      Optional<RiddlesForTopic> result = riddlesForTopicList.iterator().next().toProto();
-      if (result.isPresent()) {
-        // TODO: Check for freshness.
-        return result.get();
-      }
+        riddlesForTopicDao.findRiddlesForTopic(topic);
+    Optional<RiddlesForTopicModel> existingModel = (riddlesForTopicList.isEmpty())
+        ? Optional.empty()
+        : Optional.of(riddlesForTopicList.iterator().next());
+    Optional<RiddlesForTopic> existingResult = existingModel.flatMap(RiddlesForTopicModel::toProto);
+    if (existingResult.isPresent()) {
+      // TODO: Check for freshness.
+      return existingResult.get();
     }
-    // TODO: Generate riddles for the given topic and persist to Datastore.
-    return RiddlesForTopic.getDefaultInstance();
+
+    ImmutableList<Riddle> riddles =
+        generativeLanguageClient.getRiddlesForTopic(topic, NUM_RIDDLES, NUM_INCORRECT_ANSWERS);
+    RiddlesPayload newResult = toRiddlesPayload(riddles);
+
+    return DatastoreUtils.newTransaction(datastore, txn -> {
+      if (existingModel.isPresent()) {
+        return existingModel.get()
+            .setRiddlesPayload(newResult)
+            .save(txn, datastore, clock)
+            .toProto()
+            .orElseThrow(IllegalStateException::new);
+      } else {
+        return riddlesForTopicDao.newRiddle(topic, newResult)
+            .save(txn, datastore, clock)
+            .toProto()
+            .orElseThrow(IllegalStateException::new);
+      }
+    });
   }
 
-  private static String normalizeTopic(String topic) {
-    return topic.toLowerCase().replaceAll("~[a-z0-9]", "");
+  private static RiddlesPayload toRiddlesPayload(ImmutableList<Riddle> riddles) {
+    return RiddlesPayload.newBuilder()
+        .addAllRiddles(riddles.stream()
+                           .map(riddle
+                               -> RiddlesPayload.Riddle.newBuilder()
+                                      .setQuestion(riddle.getQuestion())
+                                      .setCorrectAnswer(riddle.getCorrectAnswer())
+                                      .addAllIncorrectAnswers(riddle.getIncorrectAnswersList())
+                                      .build())
+                           .collect(ImmutableList.toImmutableList()))
+        .build();
   }
+
+  private static final int NUM_RIDDLES = 10;
+  private static final int NUM_INCORRECT_ANSWERS = 4;
 }

@@ -6,7 +6,11 @@ option java_package = "com.yanivian.riddlr.generativelanguage.proto";
 option java_multiple_files = true;
 
 message Riddle {
-  string Question = 1;
-  string CorrectAnswer = 2;
-  repeated string IncorrectAnswers = 3;
+  string question = 1;
+  string correctAnswer = 2;
+  repeated string incorrectAnswers = 3;
+}
+
+message RiddlesContainer {
+  repeated Riddle riddles = 1;
 }

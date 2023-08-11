@@ -10,7 +10,7 @@ import com.yanivian.riddlr.backend.datastore.proto.RiddlesPayload;
 import com.yanivian.riddlr.backend.operation.proto.GetRiddlesForTopicRequest;
 import com.yanivian.riddlr.backend.operation.proto.RiddlesForTopic;
 import com.yanivian.riddlr.generativelanguage.GenerativeLanguageClient;
-import com.yanivian.riddlr.generativelanguage.proto.Riddle;
+import com.yanivian.riddlr.generativelanguage.proto.RiddlesContainer;
 import java.time.Clock;
 import java.util.Optional;
 import java.util.function.Function;
@@ -45,9 +45,13 @@ public final class GetRiddlesForTopicOp
       return existingResult.get();
     }
 
-    ImmutableList<Riddle> riddles =
+    Optional<RiddlesContainer> riddles =
         generativeLanguageClient.getRiddlesForTopic(topic, NUM_RIDDLES, NUM_INCORRECT_ANSWERS);
-    RiddlesPayload newResult = toRiddlesPayload(riddles);
+    if (!riddles.isPresent()) {
+      // Riddles could not be fetched, so do not persist.
+      return RiddlesForTopic.getDefaultInstance();
+    }
+    RiddlesPayload newResult = toRiddlesPayload(riddles.get());
 
     return DatastoreUtils.newTransaction(datastore, txn -> {
       if (existingModel.isPresent()) {
@@ -65,9 +69,10 @@ public final class GetRiddlesForTopicOp
     });
   }
 
-  private static RiddlesPayload toRiddlesPayload(ImmutableList<Riddle> riddles) {
+  private static RiddlesPayload toRiddlesPayload(RiddlesContainer riddles) {
     return RiddlesPayload.newBuilder()
-        .addAllRiddles(riddles.stream()
+        .addAllRiddles(riddles.getRiddlesList()
+                           .stream()
                            .map(riddle
                                -> RiddlesPayload.Riddle.newBuilder()
                                       .setQuestion(riddle.getQuestion())

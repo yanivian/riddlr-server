@@ -8,7 +8,6 @@ ext {
       // Local dependency, see https://developers.generativeai.google/tutorials/text_java_quickstart
       // TODO: Change to a public maven repository.
       'com.google.cloud:gapic-google-cloud-ai-generativelanguage-v1beta2-java:+',
-      'io.grpc:grpc-okhttp:+',
     ],
     guava: [
       'com.google.guava:guava:+',
@@ -18,6 +17,11 @@ ext {
     ],
     guice_servlet: [
       'com.google.inject.extensions:guice-servlet:5+',
+    ],
+    http_client: [
+      'com.google.http-client:google-http-client:+',
+      'com.google.http-client:google-http-client-appengine:+',
+      'com.google.http-client:google-http-client-jackson2:+',
     ],
     log4j_api : 'org.apache.logging.log4j:log4j-api:2.+',
     log4j_core: 'org.apache.logging.log4j:log4j-core:2.+',

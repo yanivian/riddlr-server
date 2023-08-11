@@ -1,18 +1,18 @@
 package com.yanivian.riddlr.frontend.endpoint;
 
-import java.io.IOException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import com.google.inject.Inject;
 import com.yanivian.riddlr.backend.operation.GetRiddlesForTopicOp;
 import com.yanivian.riddlr.backend.operation.proto.GetRiddlesForTopicRequest;
 import com.yanivian.riddlr.backend.operation.proto.RiddlesForTopic;
 import com.yanivian.riddlr.service.Endpoint;
-import com.yanivian.riddlr.service.Endpoint.AllowGet;
+import com.yanivian.riddlr.service.Endpoint.AllowPost;
+import java.io.IOException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(name = "GetRiddlesForTopicEndpoint", urlPatterns = {"/riddles/getForTopic"})
-@AllowGet
+@AllowPost
 public final class GetRiddlesForTopicEndpoint extends Endpoint {
   @Inject GetRiddlesForTopicOp getRiddlesForTopicOp;
 

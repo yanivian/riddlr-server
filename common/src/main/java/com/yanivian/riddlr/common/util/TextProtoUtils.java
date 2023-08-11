@@ -1,9 +1,12 @@
 package com.yanivian.riddlr.common.util;
 
+import com.google.protobuf.Internal;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.MessageOrBuilder;
 import com.google.protobuf.TextFormat;
 import com.google.protobuf.TextFormat.ParseException;
+import com.google.protobuf.util.JsonFormat;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -31,5 +34,18 @@ public final class TextProtoUtils {
   public static <T extends Message> T decode(byte[] code, Class<T> protoClass)
       throws ParseException {
     return TextFormat.parse(new String(code, CHARSET), protoClass);
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <T extends Message> T parseJson(String json, Class<T> protoClass)
+      throws InvalidProtocolBufferException {
+    T.Builder builder = Internal.getDefaultInstance(protoClass).toBuilder();
+    JsonFormat.parser().merge(json, builder);
+    return (T) builder.build();
+  }
+
+  public static <T extends Message> String encodeToJsonString(T proto)
+      throws InvalidProtocolBufferException {
+    return JsonFormat.printer().print(proto);
   }
 }

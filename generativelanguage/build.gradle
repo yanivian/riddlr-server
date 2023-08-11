@@ -2,7 +2,8 @@ apply plugin: 'java-library'
 
 dependencies {
   implementation project(":common")
+  implementation libs.generativelanguage
   implementation libs.guava
   implementation libs.guice
-  implementation libs.generativelanguage
+  implementation libs.http_client
 }

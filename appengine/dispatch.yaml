@@ -1,0 +1,3 @@
+dispatch:
+    - url: "api.riddlr.yanivian.com/*"
+      service: riddlr

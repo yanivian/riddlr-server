@@ -1,4 +1,4 @@
-apply plugin: 'com.google.cloud.tools.appengine'
+apply plugin: 'java-library'
 
 dependencies {
   implementation project(":common")
@@ -6,7 +6,4 @@ dependencies {
   implementation libs.appengine
   implementation libs.guava
   implementation libs.guice
-}
-
-appengine {
 }

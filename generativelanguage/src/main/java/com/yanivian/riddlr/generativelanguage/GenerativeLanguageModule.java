@@ -1,5 +1,6 @@
 package com.yanivian.riddlr.generativelanguage;
 
+import com.google.ai.generativelanguage.v1beta2.GenerateTextRequest;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
@@ -21,5 +22,16 @@ public final class GenerativeLanguageModule extends AbstractModule {
   @Provides
   HttpRequestFactory provideHttpRequestFactory(HttpTransport httpTransport) {
     return httpTransport.createRequestFactory();
+  }
+
+  @Provides
+  GenerateTextRequest provideGenerateTextRequest() {
+    return GenerateTextRequest.newBuilder()
+        .setTemperature(.25f)
+        .setCandidateCount(1)
+        .setMaxOutputTokens(4096)
+        .setTopK(100)
+        .setTopP(.95f)
+        .build();
   }
 }

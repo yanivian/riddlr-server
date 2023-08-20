@@ -23,10 +23,13 @@ import org.apache.logging.log4j.Logger;
 /** A functional web client to the Generative Language REST API. */
 public final class GenerativeLanguageClient {
   private final HttpRequestFactory httpRequestFactory;
+  private final GenerateTextRequest baseGenerateTextRequest;
 
   @Inject
-  GenerativeLanguageClient(HttpRequestFactory httpRequestFactory) {
+  GenerativeLanguageClient(
+      HttpRequestFactory httpRequestFactory, GenerateTextRequest baseGenerateTextRequest) {
     this.httpRequestFactory = httpRequestFactory;
+    this.baseGenerateTextRequest = baseGenerateTextRequest;
   }
 
   public Optional<RiddlesContainer> getRiddlesForTopic(
@@ -78,7 +81,7 @@ public final class GenerativeLanguageClient {
     }
     GenericUrl url = new GenericUrl(uri);
     String requestBody =
-        TextProtoUtils.encodeToJsonString(GenerateTextRequest.newBuilder()
+        TextProtoUtils.encodeToJsonString(baseGenerateTextRequest.toBuilder()
                                               .setPrompt(TextPrompt.newBuilder().setText(prompt))
                                               .build());
     HttpRequest request =

@@ -21,6 +21,8 @@ message RiddlesForTopic {
     string Question = 1;
     string CorrectAnswer = 2;
     repeated string IncorrectAnswers = 3;
+    string Explanation = 4;
+    string CitationURL = 5;
   }
   repeated Riddle Riddles = 3;
 }

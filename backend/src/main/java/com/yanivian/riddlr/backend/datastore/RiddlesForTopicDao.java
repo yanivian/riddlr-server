@@ -106,6 +106,8 @@ public final class RiddlesForTopicDao {
           .setQuestion(riddle.getQuestion())
           .setCorrectAnswer(riddle.getCorrectAnswer())
           .addAllIncorrectAnswers(riddle.getIncorrectAnswersList())
+          .setExplanation(riddle.getExplanation())
+          .setCitationURL(riddle.getCitationURL())
           .build();
     }
 

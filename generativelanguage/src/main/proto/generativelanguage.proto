@@ -9,6 +9,8 @@ message Riddle {
   string question = 1;
   string correctAnswer = 2;
   repeated string incorrectAnswers = 3;
+  string explanation = 4;
+  string citationURL = 5;
 }
 
 message RiddlesContainer {

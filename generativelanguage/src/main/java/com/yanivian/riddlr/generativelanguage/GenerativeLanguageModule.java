@@ -1,6 +1,9 @@
 package com.yanivian.riddlr.generativelanguage;
 
 import com.google.ai.generativelanguage.v1beta2.GenerateTextRequest;
+import com.google.ai.generativelanguage.v1beta2.HarmCategory;
+import com.google.ai.generativelanguage.v1beta2.SafetySetting;
+import com.google.ai.generativelanguage.v1beta2.SafetySetting.HarmBlockThreshold;
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpTransport;
@@ -26,12 +29,15 @@ public final class GenerativeLanguageModule extends AbstractModule {
 
   @Provides
   GenerateTextRequest provideGenerateTextRequest() {
-    return GenerateTextRequest.newBuilder()
-        .setTemperature(.25f)
-        .setCandidateCount(1)
-        .setMaxOutputTokens(4096)
-        .setTopK(100)
-        .setTopP(.95f)
-        .build();
+    GenerateTextRequest.Builder req = GenerateTextRequest.newBuilder();
+    for (HarmCategory category : HarmCategory.values()) {
+      if (!category.equals(HarmCategory.UNRECOGNIZED)) {
+        req.addSafetySettings(SafetySetting.newBuilder()
+                                  .setCategory(category)
+                                  .setThreshold(HarmBlockThreshold.BLOCK_LOW_AND_ABOVE)
+                                  .build());
+      }
+    }
+    return req.build();
   }
 }

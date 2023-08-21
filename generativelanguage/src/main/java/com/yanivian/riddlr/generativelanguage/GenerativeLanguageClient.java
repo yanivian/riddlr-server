@@ -8,14 +8,18 @@ import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.HttpResponse;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.yanivian.riddlr.common.util.TextProtoUtils;
+import com.yanivian.riddlr.generativelanguage.proto.Riddle;
 import com.yanivian.riddlr.generativelanguage.proto.RiddlesContainer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,7 +33,12 @@ public final class GenerativeLanguageClient {
   GenerativeLanguageClient(
       HttpRequestFactory httpRequestFactory, GenerateTextRequest baseGenerateTextRequest) {
     this.httpRequestFactory = httpRequestFactory;
-    this.baseGenerateTextRequest = baseGenerateTextRequest;
+    this.baseGenerateTextRequest = baseGenerateTextRequest.toBuilder()
+                                       .setTemperature(.5f)
+                                       .setCandidateCount(4)
+                                       .setTopK(100)
+                                       .setTopP(.9f)
+                                       .build();
   }
 
   public Optional<RiddlesContainer> getRiddlesForTopic(
@@ -39,9 +48,10 @@ public final class GenerativeLanguageClient {
             .append(String.format(
                 "I want to quiz my friend on the topic of \"%s\". ", normalizeTopic(topic)))
             .append(String.format(
-                "List %s short questions and their word or phrase answers, together with up to %s other answers that are incorrect but reasonable? ",
+                "Can you list %s short questions and their word or phrase answers, together with up to %s other answers that are incorrect but reasonable? ",
                 numRiddles, numIncorrectAnswers))
-            .append("Output in JSON with fields: question, correctAnswer, incorrectAnswers.")
+            .append(
+                "Output in JSON with fields: question, correctAnswer, incorrectAnswers, explanation and citationURL.")
             .toString();
     LOGGER.atInfo().log("Prompt: {}", prompt);
 
@@ -58,9 +68,26 @@ public final class GenerativeLanguageClient {
         // No candidates.
         return Optional.of(RiddlesContainer.getDefaultInstance());
       }
-      String generation = response.getCandidates(0).getOutput();
-      LOGGER.atInfo().log("Generation: {}", generation);
-      return parseRiddles(generation);
+      ImmutableList<Riddle> riddles =
+          response.getCandidatesList()
+              .stream()
+              .map(candidate -> parseRiddles(candidate.getOutput()))
+              .filter(Optional::isPresent)
+              .flatMap(optional -> optional.get().getRiddlesList().stream())
+              .collect(ImmutableList.toImmutableList());
+      Set<String> uniqueQuestions = new HashSet<>();
+      Set<String> correctAnswers = new HashSet<>();
+      ImmutableList<Riddle> dedupedRiddles =
+          riddles
+              .stream()
+              // Deduplicate riddles on the question.
+              .filter(riddle -> uniqueQuestions.add(riddle.getQuestion()))
+              // Deduplicate riddles on the correct answers.
+              .filter(riddle -> correctAnswers.add(riddle.getCorrectAnswer()))
+              .collect(ImmutableList.toImmutableList());
+      LOGGER.atInfo().log(
+          "Found {} riddles, {} after de-duplication.", riddles.size(), dedupedRiddles.size());
+      return Optional.of(RiddlesContainer.newBuilder().addAllRiddles(dedupedRiddles).build());
     } catch (IOException ioe) {
       LOGGER.atError().withThrowable(ioe).log("Web request failed.");
       return Optional.empty();

@@ -13,6 +13,7 @@ import com.yanivian.riddlr.generativelanguage.GenerativeLanguageClient;
 import com.yanivian.riddlr.generativelanguage.proto.RiddlesContainer;
 import java.time.Clock;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
 public final class GetRiddlesForTopicOp
@@ -41,8 +42,9 @@ public final class GetRiddlesForTopicOp
         : Optional.of(riddlesForTopicList.iterator().next());
     Optional<RiddlesForTopic> existingResult = existingModel.flatMap(RiddlesForTopicModel::toProto);
     if (existingResult.isPresent()) {
-      // TODO: Check for freshness.
-      return existingResult.get();
+      if (existingModel.get().getTimestampMillis() >= clock.millis() - STALENESS_INTERVAL_MILLIS) {
+        return existingResult.get();
+      }
     }
 
     Optional<RiddlesContainer> riddles =
@@ -85,4 +87,5 @@ public final class GetRiddlesForTopicOp
 
   private static final int NUM_RIDDLES = 10;
   private static final int NUM_INCORRECT_ANSWERS = 4;
+  private static final long STALENESS_INTERVAL_MILLIS = TimeUnit.DAYS.toMillis(7);
 }

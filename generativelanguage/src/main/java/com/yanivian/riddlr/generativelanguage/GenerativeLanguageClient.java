@@ -62,8 +62,10 @@ public final class GenerativeLanguageClient {
             httpResponse.getStatusMessage());
         return Optional.empty();
       }
+      String responseStr = httpResponse.parseAsString();
+      LOGGER.atInfo().log("Response: {}", responseStr);
       GenerateTextResponse response =
-          TextProtoUtils.parseJson(httpResponse.parseAsString(), GenerateTextResponse.class);
+          TextProtoUtils.parseJson(responseStr, GenerateTextResponse.class);
       if (response.getCandidatesCount() == 0) {
         // No candidates.
         return Optional.of(RiddlesContainer.getDefaultInstance());

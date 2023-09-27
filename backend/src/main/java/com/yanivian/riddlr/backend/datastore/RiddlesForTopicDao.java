@@ -23,8 +23,8 @@ import com.yanivian.riddlr.common.util.TextProtoUtils;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class RiddlesForTopicDao {
   private final DatastoreService datastore;
@@ -96,7 +96,7 @@ public final class RiddlesForTopicDao {
         return Optional.of(
             RiddlesForTopic.newBuilder().setID(getID()).addAllRiddles(riddles).build());
       } catch (ParseException pe) {
-        LOGGER.atError().withThrowable(pe).log("Failed to decode payload for ID: {}", getID());
+        LOGGER.log(Level.SEVERE, String.format("Failed to decode payload for ID: %s", getID()), pe);
         return Optional.empty();
       }
     }
@@ -141,5 +141,5 @@ public final class RiddlesForTopicDao {
     return topic.toLowerCase().replaceAll("[^a-z0-9]+", "");
   }
 
-  private static final Logger LOGGER = LogManager.getLogger(RiddlesForTopicDao.class);
+  private static final Logger LOGGER = Logger.getLogger(RiddlesForTopicDao.class.getName());
 }

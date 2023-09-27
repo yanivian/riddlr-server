@@ -14,12 +14,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.Optional;
+import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** Base class for an endpoint in a web service. */
 public abstract class Endpoint extends HttpServlet {
@@ -31,7 +30,7 @@ public abstract class Endpoint extends HttpServlet {
   @Target(ElementType.TYPE)
   public @interface AllowPost {}
 
-  protected final Logger logger = LogManager.getLogger(getClass());
+  protected final Logger logger = Logger.getLogger(getClass().getName());
 
   @Override
   public void init() throws ServletException {

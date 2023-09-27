@@ -20,9 +20,9 @@ import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 /** A functional web client to the Generative Language REST API. */
 public final class GenerativeLanguageClient {
@@ -34,15 +34,16 @@ public final class GenerativeLanguageClient {
       HttpRequestFactory httpRequestFactory, GenerateTextRequest baseGenerateTextRequest) {
     this.httpRequestFactory = httpRequestFactory;
     this.baseGenerateTextRequest = baseGenerateTextRequest.toBuilder()
-                                       .setTemperature(.5f)
+                                       .setTemperature(.1f)
                                        .setCandidateCount(4)
-                                       .setTopK(100)
-                                       .setTopP(.9f)
+                                       .setTopK(40)
+                                       .setTopP(.95f)
                                        .build();
   }
 
   public Optional<RiddlesContainer> getRiddlesForTopic(
       String topic, int numRiddles, int numIncorrectAnswers) {
+    LOGGER.log(Level.INFO, "Topic: {0}", topic);
     String prompt =
         new StringBuilder()
             .append(String.format(
@@ -53,19 +54,17 @@ public final class GenerativeLanguageClient {
             .append(
                 "Output in JSON with fields: question, correctAnswer, incorrectAnswers, explanation and citationURL.")
             .toString();
-    LOGGER.atInfo().log("Prompt: {}", prompt);
+    LOGGER.log(Level.FINE, "Prompt: {0}", prompt);
 
     try {
       HttpResponse httpResponse = createGenerateTextHttpRequest(prompt).execute();
       if (httpResponse.getStatusCode() != 200) {
-        LOGGER.atError().log("Generation Failed: Status {} {}", httpResponse.getStatusCode(),
-            httpResponse.getStatusMessage());
+        LOGGER.log(Level.SEVERE, "Generation Failed: Status {0} {1}",
+            new Object[] {httpResponse.getStatusCode(), httpResponse.getStatusMessage()});
         return Optional.empty();
       }
-      String responseStr = httpResponse.parseAsString();
-      LOGGER.atInfo().log("Response: {}", responseStr);
       GenerateTextResponse response =
-          TextProtoUtils.parseJson(responseStr, GenerateTextResponse.class);
+          TextProtoUtils.parseJson(httpResponse.parseAsString(), GenerateTextResponse.class);
       if (response.getCandidatesCount() == 0) {
         // No candidates.
         return Optional.of(RiddlesContainer.getDefaultInstance());
@@ -87,11 +86,11 @@ public final class GenerativeLanguageClient {
               // Deduplicate riddles on the correct answers.
               .filter(riddle -> correctAnswers.add(riddle.getCorrectAnswer()))
               .collect(ImmutableList.toImmutableList());
-      LOGGER.atInfo().log(
-          "Found {} riddles, {} after de-duplication.", riddles.size(), dedupedRiddles.size());
+      LOGGER.log(Level.INFO, "Found {0} riddles, {1} after de-duplication.",
+          new Object[] {riddles.size(), dedupedRiddles.size()});
       return Optional.of(RiddlesContainer.newBuilder().addAllRiddles(dedupedRiddles).build());
     } catch (IOException ioe) {
-      LOGGER.atError().withThrowable(ioe).log("Web request failed.");
+      LOGGER.log(Level.SEVERE, "Generation Failed.", ioe);
       return Optional.empty();
     }
   }
@@ -123,32 +122,36 @@ public final class GenerativeLanguageClient {
     if (str.startsWith("```json")) {
       // Strip out code start.
       str = str.substring(7).trim();
-      LOGGER.atInfo().log("Stripped JSON code start.");
+      LOGGER.log(Level.FINE, "Stripped JSON code start.");
       if (str.endsWith("```")) {
         // Strip out code end.
         str = str.substring(0, str.length() - 3).trim();
-        LOGGER.atInfo().log("Stripped JSON code end.");
+        LOGGER.log(Level.FINE, "Stripped JSON code end.");
       }
+    }
+    if (str.indexOf("\\$") > 0) {
+      str = str.replaceAll("\\$", "$");
+      LOGGER.log(Level.FINE, "Un-escaped $ characters.");
     }
     if (str.indexOf("\"\"") > 0) {
       str = str.replaceAll("[\"]+", "\"");
-      LOGGER.atInfo().log("De-duped double quotes.");
+      LOGGER.log(Level.FINE, "De-duped double quotes.");
     }
     if (str.indexOf("''") > 0) {
       str = str.replaceAll("[']+", "'");
-      LOGGER.atInfo().log("De-duped single quotes.");
+      LOGGER.log(Level.FINE, "De-duped single quotes.");
     }
     if (!str.endsWith("}]")) {
       int lastAnswerIdx = str.lastIndexOf("},");
       String ignored = str.substring(lastAnswerIdx);
       str = str.substring(0, lastAnswerIdx) + "}]";
-      LOGGER.atInfo().log("Truncated answers, ignored: {}", ignored);
+      LOGGER.log(Level.FINE, "Truncated answers, ignored: {0}", ignored);
     }
     String riddlesContainerStr = String.format("{ \"riddles\": %s }", str);
     try {
       return Optional.of(TextProtoUtils.parseJson(riddlesContainerStr, RiddlesContainer.class));
     } catch (InvalidProtocolBufferException ipbe) {
-      LOGGER.atError().withThrowable(ipbe).log("Failed to parse: {}", riddlesContainerStr);
+      LOGGER.log(Level.SEVERE, String.format("Failed to parse: %s", riddlesContainerStr), ipbe);
       return Optional.empty();
     }
   }
@@ -159,5 +162,5 @@ public final class GenerativeLanguageClient {
   }
 
   private static final String API_KEY = "AIzaSyC6doGY1WaMe3-ORdpzs2DktDYB3YsThzA";
-  private static final Logger LOGGER = LogManager.getLogger(GenerativeLanguageClient.class);
+  private static final Logger LOGGER = Logger.getLogger(GenerativeLanguageClient.class.getName());
 }

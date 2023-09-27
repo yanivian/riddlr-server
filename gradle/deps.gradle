@@ -23,8 +23,6 @@ ext {
       'com.google.http-client:google-http-client-appengine:+',
       'com.google.http-client:google-http-client-jackson2:+',
     ],
-    log4j_api : 'org.apache.logging.log4j:log4j-api:2.+',
-    log4j_core: 'org.apache.logging.log4j:log4j-core:2.+',
     protobuf : [
       'com.google.protobuf:protobuf-java:+',
       'com.google.protobuf:protobuf-java-util:+',

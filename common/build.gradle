@@ -1,6 +1,4 @@
 apply plugin: 'java-library'
 
 dependencies {
-  implementation libs.log4j_core
-  api libs.log4j_api
 }
